@@ -1,6 +1,8 @@
 #pragma once
 #include "Input.h"
 #include "Update.h"
+#include "Block.h"
+#include "LineState.h"
 
 using namespace std;
 
@@ -32,17 +34,16 @@ private:
 	SDL_Texture* mGoldTile;
 	SDL_Texture* mOrangeTile;
 	SDL_Texture* mRedTile;
-
-
+	SDL_Texture* mCompletedTile;
 
 	// Game state variables
 	KeyPress mKeyPress;
 	vector<int> mGameBoardMatrix;
 	Block* mCurrentBlock;
 	Uint32 mBlockTicks;
+	vector<int> mCompletedLines;
+	LineState mLineState;
 
 	void renderGame();
 	void destroyResources();
 };
-
-void createNewBlock(Block*& mCurrentBlock);

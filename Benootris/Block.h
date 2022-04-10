@@ -17,6 +17,7 @@ public:
 	Block();
 	~Block();
 	void moveLeft();
+	bool checkLeftWall(pattern pattern, bool rotate);
 	void moveRight();
 	virtual void rotateLeft();
 	virtual void rotateRight();
@@ -27,6 +28,9 @@ public:
 	BlockState getBlockState();
 
 	virtual pattern getPattern();
+	virtual pattern getPattern(int index);
+
+
 
 	vector<pattern> mPattern;
 	int mPatternIndex;
@@ -43,6 +47,7 @@ public:
 	virtual void rotateLeft();
 	virtual void rotateRight();
 	virtual pattern getPattern();
+	virtual pattern getPattern(int index);
 };
 
 class Square : public Block {
@@ -50,6 +55,7 @@ public:
 	Square(int c, int index, int x, int y);
 	~Square();
 	virtual pattern getPattern();
+	virtual pattern getPattern(int index);
 };
 
 class Lshape : public Block {
@@ -60,6 +66,7 @@ public:
 	virtual void rotateRight();
 	virtual void flip();
 	virtual pattern getPattern();
+	virtual pattern getPattern(int index);
 };
 
 class Zshape : public Block {
@@ -69,5 +76,8 @@ public:
 	virtual void rotateLeft();
 	virtual void rotateRight();
 	virtual void flip();
-	virtual pattern getPattern();	
+	virtual pattern getPattern();
+	virtual pattern getPattern(int index);
 };
+
+void createNewBlock(Block*& mCurrentBlock);

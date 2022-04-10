@@ -29,6 +29,7 @@
     <ClInclude Include="Block.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="LineState.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="Update.h" />
   </ItemGroup>

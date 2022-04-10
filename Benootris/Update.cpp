@@ -1,34 +1,53 @@
 #include <iostream>
-#include "Game.h"
 #include "Update.h"
 
 using namespace std;
 
-Update::Update(KeyPress& keyPress, Block*& currentBlock, Uint32& blockTicks, vector<int>& gameBoardMatrix)
-	: mKeyPress(keyPress),
+Update::Update(KeyPress& keyPress, 
+				Block*& currentBlock, 
+				Uint32& blockTicks, 
+				vector<int>& gameBoardMatrix, 
+				vector<int>& completedLines,
+				LineState& lineState) : 
+	mKeyPress(keyPress),
 	mCurrentBlock(currentBlock),
 	mBlockTicks(blockTicks),
-	mGameBoardMatrix(gameBoardMatrix) { 
-
-	mLineScored = false;
-}
+	mGameBoardMatrix(gameBoardMatrix),
+	mCompletedLines(completedLines),
+	mLineState(lineState) { }
 
 Update::~Update() {}
 
 void Update::updateGame() {
-	updateBlockPosition();
-	checkBlockPosition();
 
-	if (mCurrentBlock->getBlockState() == INACTIVE) {
-		updateGameBoard();
-		checkForCompleteLine();
-		prepareNewBlock();
+	if (mCurrentBlock->getBlockState() == ACTIVE) {
+		updateBlockPosition();
+		checkBlockPosition();
 	}
-	
-	
+	else if (mCurrentBlock->getBlockState() == INACTIVE) {
+		if (mLineState == INPLAY) {
+			updateGameBoard();
+			
+			if (!checkForCompleteLine()) {
+				//cout << "prep new block INPLAY" << endl;
+				prepareNewBlock();
+			}
+		}
+		else if (mLineState == COMPLETED) {
+			updateLineState();
+		}
+		else if (mLineState == DELETED) {
+			prepareCompletedLine();
+			resetLineState();
+			//cout << "prep new block DELETED" << endl;
+			prepareNewBlock();
+		}
+		
+	}
 }
 
 void Update::updateBlockPosition() {
+	//cout << "updateBlockPosition()" << endl;
 	updatePlayerMovement();
 	updateAutoMovement();
 }
@@ -62,7 +81,7 @@ void Update::dropBlock() {
 }
 
 void Update::updateAutoMovement() {
-	if (SDL_GetTicks() - mBlockTicks > 250) {
+	if (SDL_GetTicks() - mBlockTicks > 500) {
 		mCurrentBlock->moveDown();
 		mBlockTicks = SDL_GetTicks();
 	}
@@ -107,6 +126,16 @@ bool Update::isLandedonBlock() {
 	return false;
 }
 
+void Update::updateLineState() {
+	//cout << "updateLineState() " << "- line ticks: " << mLineTicks << " - diff: " << (SDL_GetTicks() - mLineTicks) << endl;
+
+	if (mLineTicks != 0 && SDL_GetTicks() - mLineTicks > 125) {
+		cout << "Set line state to DELETED" << endl;
+		mLineState = DELETED;
+		mLineTicks = 0;
+	}
+}
+
 void Update::updateGameBoard() {
 	// Tidy up literals
 	for (int i = 0; i < 16; i++) {
@@ -117,64 +146,103 @@ void Update::updateGameBoard() {
 	}
 }
 
-void Update::checkForCompleteLine() {
-	int tileCount = 0;
+bool Update::checkForCompleteLine() {
+	cout << "checkForCompletedLine()" << endl;
 	int filledCount = 0;
 	int emptyCount = 0;
+	bool lineScored = false;
 
-	for (int i = mGameBoardMatrix.size() - 1; i >= 0; i--) { // Cycle backwards through board
+	for (size_t i = mGameBoardMatrix.size() - 1; i >= 0; i--) { // Cycle backwards through board	
+
+		//cout << "Check row: " << (i / 20) + 1 << endl;
+
 		if (mGameBoardMatrix[i] != 0) {
 			filledCount++;
 			emptyCount = 0;
 		}
 		else {
 			emptyCount++;
+			filledCount = 0;
 		}
+
+		//cout << "Check row: " << (i / 20) + 1 << " - filled: " << filledCount << endl;
 
 		if (filledCount == 20) {
-			cout << "Filled complete line" << endl;
-			prepareCompletedLine(i);
+			//cout << "Filled complete line" << endl;
+			mCompletedLines.push_back(((int)i / 20) + 1);
+			mLineState = COMPLETED;
+			mLineTicks = SDL_GetTicks();
+			lineScored = true;
+
+			markCompletedLine(i);
 			filledCount = 0;
 		}
-		if (emptyCount == 20) { // No tiles left in game board row	
+		if (emptyCount == 20) { // No tiles left in game board row
+			cout << "Breaking check for complete line on row: " << (i / 20) << endl;
 			break;
 		}
+	}	
 
-		tileCount++;
-
-		// clear new row
-		if (tileCount == 20) {
-			tileCount = 0;
-			filledCount = 0;
-			emptyCount = 0;
-		}
-	}
-	cout << "No line scored" << endl;
-
-	mLineScored = false;
+	return lineScored;
 }
 
-void Update::prepareCompletedLine(int rowStart) {
-	int endOfRow = rowStart + 20;
 
-	cout << "Deleting row " << rowStart << "-" << endOfRow << endl;
-	// animate - but this is a big piece, for now just delete and move
+void Update::markCompletedLine(size_t startTile) {
+	cout << "markCompletedLine()" << endl;
+	// Update game board matrix to signify completed lies
 
-	for (int i = endOfRow; i >= 0; i--) { // Cycle backwards through board
-		if (mGameBoardMatrix[i - 20] >= 0) {
-			mGameBoardMatrix[i] = mGameBoardMatrix[i - 20];
+	//cout << "Update game board for completed line render" << endl;
+	cout << "Size of completed line vector: " << mCompletedLines.size() << endl;
+
+
+	for (size_t i = startTile; i < startTile + 20; i++) {
+		cout << "Completed line row - current colour: " << mGameBoardMatrix[i] << endl;
+		mGameBoardMatrix[i] = 1;
+	}
+}
+
+void Update::prepareCompletedLine() {
+	// for each line in the completed lines run through and shift shit down
+
+	cout << "prepareCompletedLine()" << endl;
+
+	for (size_t i = 0; i < mCompletedLines.size(); i++) {
+		int endPosition = (mCompletedLines[i] * 20) - 1;
+
+
+		cout << "Deleting row " << mCompletedLines[i] << " - end position: " << endPosition << endl;
+
+		for (size_t i = endPosition; i > 0; i--) {
+			//cout << "shift: " << i << endl;
+			if (i > 19) {
+				mGameBoardMatrix[i] = mGameBoardMatrix[i - 20];
+			}
+			else {
+				mGameBoardMatrix[i] = 0;
+			}
+
 		}
-		else {
-			mGameBoardMatrix[i] = 0;
+
+		if (mCompletedLines.size() > 1) {
+			cout << "shift next completed line" << endl;
+			for (size_t j = i; j < mCompletedLines.size(); j++) {
+				mCompletedLines[j]++;
+			}
 		}
+		
 	}
 
-	mLineScored = true;
+	cout << "END prepareCompletedLine()" << endl;
+}
+
+void Update::resetLineState() {
+	cout << "resetLineState()" << endl;
+	mLineState = INPLAY;
+	mCompletedLines.clear();
 }
 
 void Update::prepareNewBlock() {
-	if (!mLineScored) {
-		delete mCurrentBlock;
-		createNewBlock(mCurrentBlock);
-	}
+	cout << "prepareNewBlock()" << endl;
+	delete mCurrentBlock;
+	createNewBlock(mCurrentBlock);
 }

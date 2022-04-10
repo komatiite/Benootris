@@ -1,6 +1,7 @@
 #include <SDL.h>
 #include <stdio.h>
 #include <iostream>
+#include <ctime>
 
 #include "main.h"
 #include "Game.h"
@@ -13,6 +14,7 @@ const int SCREEN_HEIGHT = 1080;
 int main(int argc, char* args[]) {
 	SDL_Window* gameWindow;
 	SDL_Renderer* renderer;
+	srand(time(0));
 
 	if (!init(gameWindow, renderer)) {
 		printf("ERROR - Could not initalize game.\n");

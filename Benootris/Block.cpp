@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include "Block.h"
 
 using namespace std;
@@ -8,8 +9,27 @@ Block::Block() {}
 Block::~Block() {}
 
 void Block::moveLeft() {
-	mX--;
+	if (checkLeftWall(getPattern(), false)) {
+		mX--;
+	}
 }
+
+bool Block::checkLeftWall(pattern pattern, bool rotate) {
+	int newX = rotate ? mX : mX - 1;
+
+	if (newX < 0) {
+		int column = abs(newX) - 1;
+
+		for (int i = column; i < 16; i += 4) {
+			if (pattern.tile[i] != 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+	return true;
+}
+
 void Block::moveRight() {
 	mX++;
 }
@@ -36,18 +56,21 @@ BlockState Block::getBlockState() {
 	return mBlockState;
 }
 
-
-
-
 pattern Block::getPattern() {
-	return mPattern[mPatternIndex];
+	return getPattern(mPatternIndex);
+}
+
+pattern Block::getPattern(int index) {
+	return mPattern[index];
 }
 
 Line::Line(int c, int index, int x, int y) {
+	//mPattern.push_back({ 1, c, 1, 1, 1, c, 1, 1, 1, c, 1, 1, 1, c, 1, 1 });
 	mPattern.push_back({ 0, c, 0, 0, 0, c, 0, 0, 0, c, 0, 0, 0, c, 0, 0 });
 	mPattern.push_back({ 0, 0, 0, 0, c, c, c, c, 0, 0, 0, 0, 0, 0, 0, 0 });
 	mPattern.push_back({ 0, 0, c, 0, 0, 0, c, 0, 0, 0, c, 0, 0, 0, c, 0 });
 	mPattern.push_back({ 0, 0, 0, 0, 0, 0, 0, 0, c, c, c, c, 0, 0, 0, 0 });
+	//mPattern.push_back({ 1, 1, 1, 1, 1, 1, 1, 1, c, c, c, c, 1, 1, 1, 1 });
 
 	mPatternIndex = 0;
 	mX = x;
@@ -58,10 +81,14 @@ Line::~Line() {}
 
 void Line::rotateLeft() {
 	if (mPatternIndex > 0) {
-		mPatternIndex--;
+		if (checkLeftWall(mPattern[mPatternIndex - 1], true)) {
+			mPatternIndex--;
+		}	
 	}
 	else {
-		mPatternIndex = 3;
+		if (checkLeftWall(mPattern[3], true)) {
+			mPatternIndex = 3;
+		}	
 	}
 }
 
@@ -75,7 +102,11 @@ void Line::rotateRight() {
 }
 
 pattern Line::getPattern() {
-	return mPattern[mPatternIndex];
+	return getPattern(mPatternIndex);
+}
+
+pattern Line::getPattern(int index) {
+	return mPattern[index];
 }
 
 
@@ -90,7 +121,11 @@ Square::Square(int c, int index, int x, int y) {
 Square::~Square() {}
 
 pattern Square::getPattern() {
-	return mPattern[mPatternIndex];
+	return getPattern(mPatternIndex);
+}
+
+pattern Square::getPattern(int index) {
+	return mPattern[index];
 }
 
 
@@ -114,16 +149,24 @@ Lshape::~Lshape() {}
 
 void Lshape::rotateLeft() {
 	if (mPatternIndex > 0 && mPatternIndex < 4) {
-		mPatternIndex--;
+		if (checkLeftWall(mPattern[mPatternIndex - 1], true)) {
+			mPatternIndex--;
+		}
 	}
 	else if (mPatternIndex == 0) {
-		mPatternIndex = 3;
+		if (checkLeftWall(mPattern[3], true)) {
+			mPatternIndex = 3;
+		}
 	}
 	else if (mPatternIndex > 4) {
-		mPatternIndex--;
+		if (checkLeftWall(mPattern[mPatternIndex - 1], true)) {
+			mPatternIndex--;
+		}
 	}
 	else if (mPatternIndex == 4) {
-		mPatternIndex = 7;
+		if (checkLeftWall(mPattern[mPatternIndex - 1], true)) {
+			mPatternIndex = 7;
+		}
 	}
 }
 
@@ -172,7 +215,11 @@ void Lshape::flip() {
 }
 
 pattern Lshape::getPattern() {
-	return mPattern[mPatternIndex];
+	return getPattern(mPatternIndex);
+}
+
+pattern Lshape::getPattern(int index) {
+	return mPattern[index];
 }
 
 
@@ -196,16 +243,24 @@ Zshape::~Zshape() {}
 
 void Zshape::rotateLeft() {
 	if (mPatternIndex > 0 && mPatternIndex < 4) {
-		mPatternIndex--;
+		if (checkLeftWall(mPattern[mPatternIndex - 1], true)) {
+			mPatternIndex--;
+		}
 	}
 	else if (mPatternIndex == 0) {
-		mPatternIndex = 3;
+		if (checkLeftWall(mPattern[3], true)) {
+			mPatternIndex = 3;
+		}
 	}
 	else if (mPatternIndex > 4) {
-		mPatternIndex--;
+		if (checkLeftWall(mPattern[mPatternIndex - 1], true)) {
+			mPatternIndex--;
+		}
 	}
 	else if (mPatternIndex == 4) {
-		mPatternIndex = 7;
+		if (checkLeftWall(mPattern[7], true)) {
+			mPatternIndex = 7;
+		}
 	}
 }
 
@@ -229,12 +284,42 @@ void Zshape::flip() {
 		mPatternIndex += 4;
 	}
 	else if (mPatternIndex > 3) {
-		mPatternIndex -= 4;
+		if (checkLeftWall(mPattern[mPatternIndex - 4], true)) {
+			mPatternIndex -= 4;
+		}
 	}
 }
 
 // Can this be cleaned up for base class? - all derived classes
 pattern Zshape::getPattern() {
-	return mPattern[mPatternIndex];
+	return getPattern(mPatternIndex);
 }
 
+pattern Zshape::getPattern(int index) {
+	return mPattern[index];
+}
+
+void createNewBlock(Block*& mCurrentBlock) {
+	int seedColour = 2 + rand() % 7;
+	int seedShape = 1 + rand() % 4;
+
+	switch (seedShape) {
+	case 1:
+		mCurrentBlock = new Line(seedColour, 0, 3, 0);
+		break;
+	case 2:
+		mCurrentBlock = new Square(seedColour, 0, 12, 0);
+		break;
+	case 3:
+		mCurrentBlock = new Lshape(seedColour, 0, 12, 0);
+		break;
+	case 4:
+		mCurrentBlock = new Zshape(seedColour, 0, 12, 0);
+		break;
+	default:
+		mCurrentBlock = new Line(seedColour, 0, 7, 0);
+		break;
+	}
+
+	mCurrentBlock->setBlockStateActive();
+}

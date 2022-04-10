@@ -47,5 +47,8 @@
     <ClInclude Include="Update.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LineState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
