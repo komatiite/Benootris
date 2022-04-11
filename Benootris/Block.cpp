@@ -31,7 +31,25 @@ bool Block::checkLeftWall(pattern pattern, bool rotate) {
 }
 
 void Block::moveRight() {
-	mX++;
+	if (checkRightWall(getPattern(), false)) {
+		mX++;
+	}
+}
+
+bool Block::checkRightWall(pattern pattern, bool rotate) {
+	int newX = rotate ? mX + 3 : mX + 4;
+
+	if (newX > 19) {
+		int endPoint = 35 - newX;
+
+		for (int i = endPoint; i > 0; i -= 4) {
+			if (pattern.tile[i] != 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+	return true;
 }
 
 void Block::rotateLeft() {}
@@ -94,10 +112,14 @@ void Line::rotateLeft() {
 
 void Line::rotateRight() {
 	if (mPatternIndex < 3) {
-		mPatternIndex++;
+		if (checkRightWall(mPattern[mPatternIndex + 1], true)) {
+			mPatternIndex++;
+		}
 	}
 	else {
-		mPatternIndex = 0;
+		if (checkRightWall(mPattern[0], true)) {
+			mPatternIndex = 0;
+		}
 	}
 }
 
@@ -172,16 +194,24 @@ void Lshape::rotateLeft() {
 
 void Lshape::rotateRight() {
 	if (mPatternIndex < 3) {
-		mPatternIndex++;
+		if (checkRightWall(mPattern[mPatternIndex + 1], true)) {
+			mPatternIndex++;
+		}
 	}
 	else if (mPatternIndex == 3) {
-		mPatternIndex = 0;
+		if (checkRightWall(mPattern[mPatternIndex + 1], true)) {
+			mPatternIndex = 0;
+		}
 	}
 	else if (mPatternIndex < 7 && mPatternIndex > 3) {
-		mPatternIndex++;
+		if (checkRightWall(mPattern[mPatternIndex + 1], true)) {
+			mPatternIndex++;
+		}
 	}
 	else if (mPatternIndex == 7) {
-		mPatternIndex = 4;
+		if (checkRightWall(mPattern[4], true)) {
+			mPatternIndex = 4;
+		}
 	}
 }
 
@@ -305,19 +335,19 @@ void createNewBlock(Block*& mCurrentBlock) {
 
 	switch (seedShape) {
 	case 1:
-		mCurrentBlock = new Line(seedColour, 0, 3, 0);
+		mCurrentBlock = new Line(seedColour, 0, 7, -3);
 		break;
 	case 2:
-		mCurrentBlock = new Square(seedColour, 0, 12, 0);
+		mCurrentBlock = new Square(seedColour, 0, 7, -3);
 		break;
 	case 3:
-		mCurrentBlock = new Lshape(seedColour, 0, 12, 0);
+		mCurrentBlock = new Lshape(seedColour, 0, 7, -3);
 		break;
 	case 4:
-		mCurrentBlock = new Zshape(seedColour, 0, 12, 0);
+		mCurrentBlock = new Zshape(seedColour, 0, 7, -3);
 		break;
 	default:
-		mCurrentBlock = new Line(seedColour, 0, 7, 0);
+		mCurrentBlock = new Line(seedColour, 0, 7, -3);
 		break;
 	}
 

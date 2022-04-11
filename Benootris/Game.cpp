@@ -29,7 +29,7 @@ Game::~Game() {
 
 void Game::runGame() {
 	mInput = new Input(mEvent, mQuit, mKeyPress);
-	mUpdate = new Update(mKeyPress, mCurrentBlock, mBlockTicks, mGameBoardMatrix, mCompletedLines, mLineState);
+	mUpdate = new Update(mKeyPress, mCurrentBlock, mBlockTicks, mGameBoardMatrix, mCompletedLines, mLineState, mIsGameActive);
 
 	// Initialize game board matrix
 	for (int i = 0; i < 34; i++) {
@@ -53,12 +53,15 @@ void Game::runGame() {
 	createNewBlock(mCurrentBlock);
 	mBlockTicks = SDL_GetTicks();
 	mLineState = INPLAY;
+	mIsGameActive = true;
 
 	while (!mQuit) {
 		mKeyPress = NONE;
 
 		mInput->handleInput();
-		mUpdate->updateGame();
+		if (mIsGameActive) {
+			mUpdate->updateGame();
+		}
 		renderGame();
 	}
 
@@ -170,6 +173,12 @@ void Game::renderGame() {
 				SDL_RenderCopy(mRenderer, texture, NULL, &rect);
 			}
 		}
+	}
+
+	if (!mIsGameActive) {
+		SDL_Texture* texture = mRedTile;
+		SDL_Rect rect{ 10, 10, 30, 30 };
+		SDL_RenderCopy(mRenderer, texture, NULL, &rect);
 	}
 	
 

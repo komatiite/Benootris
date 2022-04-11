@@ -19,6 +19,7 @@ public:
 	void moveLeft();
 	bool checkLeftWall(pattern pattern, bool rotate);
 	void moveRight();
+	bool checkRightWall(pattern pattern, bool rotate);
 	virtual void rotateLeft();
 	virtual void rotateRight();
 	virtual void flip();

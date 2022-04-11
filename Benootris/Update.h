@@ -11,7 +11,8 @@ public:
 		Uint32& blockTicks, 
 		vector<int>& gameBoardMatrix, 
 		vector<int>& completedLines,
-		LineState& lineState);
+		LineState& lineState,
+		bool& isGameActive);
 	~Update();
 	void updateGame();
 
@@ -23,6 +24,7 @@ private:
 	vector<int>& mCompletedLines;
 	LineState& mLineState;
 	Uint32 mLineTicks;
+	bool& mIsGameActive;
 
 	void updateBlockPosition();
 	void updatePlayerMovement();
@@ -31,6 +33,7 @@ private:
 	void checkBlockPosition();
 	bool isLandedOnBottom();
 	bool isLandedonBlock();
+	bool checkIfFull();
 	void updateLineState();
 	void updateGameBoard();
 	bool checkForCompleteLine();

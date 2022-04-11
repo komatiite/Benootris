@@ -8,13 +8,15 @@ Update::Update(KeyPress& keyPress,
 				Uint32& blockTicks, 
 				vector<int>& gameBoardMatrix, 
 				vector<int>& completedLines,
-				LineState& lineState) : 
+				LineState& lineState,
+				bool& isGameActive) :
 	mKeyPress(keyPress),
 	mCurrentBlock(currentBlock),
 	mBlockTicks(blockTicks),
 	mGameBoardMatrix(gameBoardMatrix),
 	mCompletedLines(completedLines),
-	mLineState(lineState) { }
+	mLineState(lineState),
+	mIsGameActive(isGameActive) { }
 
 Update::~Update() {}
 
@@ -26,12 +28,14 @@ void Update::updateGame() {
 	}
 	else if (mCurrentBlock->getBlockState() == INACTIVE) {
 		if (mLineState == INPLAY) {
-			updateGameBoard();
-			
-			if (!checkForCompleteLine()) {
-				//cout << "prep new block INPLAY" << endl;
-				prepareNewBlock();
-			}
+			if (!checkIfFull()) {
+				updateGameBoard();
+
+				if (!checkForCompleteLine()) {
+					//cout << "prep new block INPLAY" << endl;
+					prepareNewBlock();
+				}
+			}	
 		}
 		else if (mLineState == COMPLETED) {
 			updateLineState();
@@ -123,6 +127,15 @@ bool Update::isLandedonBlock() {
 			break;
 		}
 	}
+	return false;
+}
+
+bool Update::checkIfFull() {
+	if (mCurrentBlock->mY < 0) {
+		mIsGameActive = false;
+		return !mIsGameActive;
+	}
+
 	return false;
 }
 

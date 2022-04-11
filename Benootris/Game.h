@@ -43,6 +43,7 @@ private:
 	Uint32 mBlockTicks;
 	vector<int> mCompletedLines;
 	LineState mLineState;
+	bool mIsGameActive;
 
 	void renderGame();
 	void destroyResources();
