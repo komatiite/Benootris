@@ -9,14 +9,16 @@ Update::Update(KeyPress& keyPress,
 				vector<int>& gameBoardMatrix, 
 				vector<int>& completedLines,
 				LineState& lineState,
-				bool& isGameActive) :
+				bool& isGameActive,
+				Uint32& score) :
 	mKeyPress(keyPress),
 	mCurrentBlock(currentBlock),
 	mBlockTicks(blockTicks),
 	mGameBoardMatrix(gameBoardMatrix),
 	mCompletedLines(completedLines),
 	mLineState(lineState),
-	mIsGameActive(isGameActive) { }
+	mIsGameActive(isGameActive),
+	mScore(score) { }
 
 Update::~Update() {}
 
@@ -189,6 +191,7 @@ bool Update::checkForCompleteLine() {
 
 			markCompletedLine(i);
 			filledCount = 0;
+			mScore += 100;
 		}
 		if (emptyCount == 20) { // No tiles left in game board row
 			cout << "Breaking check for complete line on row: " << (i / 20) << endl;

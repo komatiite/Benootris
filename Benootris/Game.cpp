@@ -1,8 +1,10 @@
 #include <iostream>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 #include "Game.h"
 #include "Block.h"
+#include "RenderText.h"
 
 using namespace std;
 
@@ -14,6 +16,10 @@ Game::Game(SDL_Window*& gameWindow,	SDL_Renderer*& renderer) : mGameWindow(gameW
 	mGameBackgroundRect = { 0, 0, 1920, 1080 };
 	mGameBoard = IMG_LoadTexture(mRenderer, "resources/game_area.png");
 	mGameBoardRect = { 650, 20, 620, 1040 };
+	mNextTileBackground = IMG_LoadTexture(mRenderer, "resources/nexttile_bg.png");
+	mNextTileRect = { 1300, 800, 160, 160 };
+	mScoreBackground = IMG_LoadTexture(mRenderer, "resources/score_bg.png");
+	mScoreRect = { 1490, 800, 300, 80 };
 	mBlueTile = IMG_LoadTexture(mRenderer, "resources/02_blue.png");
 	mTealTile = IMG_LoadTexture(mRenderer, "resources/03_teal.png");
 	mGreenTile = IMG_LoadTexture(mRenderer, "resources/04_green.png");
@@ -22,6 +28,9 @@ Game::Game(SDL_Window*& gameWindow,	SDL_Renderer*& renderer) : mGameWindow(gameW
 	mRedTile = IMG_LoadTexture(mRenderer, "resources/07_red.png");
 	mCompletedTile = IMG_LoadTexture(mRenderer, "resources/01_completed.png");
 
+	if (TTF_Init() == -1) {
+		cout << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << endl;
+	}
 }
 
 Game::~Game() {
@@ -29,7 +38,7 @@ Game::~Game() {
 
 void Game::runGame() {
 	mInput = new Input(mEvent, mQuit, mKeyPress);
-	mUpdate = new Update(mKeyPress, mCurrentBlock, mBlockTicks, mGameBoardMatrix, mCompletedLines, mLineState, mIsGameActive);
+	mUpdate = new Update(mKeyPress, mCurrentBlock, mBlockTicks, mGameBoardMatrix, mCompletedLines, mLineState, mIsGameActive, mScore);
 
 	// Initialize game board matrix
 	for (int i = 0; i < 34; i++) {
@@ -54,6 +63,7 @@ void Game::runGame() {
 	mBlockTicks = SDL_GetTicks();
 	mLineState = INPLAY;
 	mIsGameActive = true;
+	mScore = 0;
 
 	while (!mQuit) {
 		mKeyPress = NONE;
@@ -75,7 +85,10 @@ void Game::renderGame() {
 
 	SDL_RenderCopy(mRenderer, mGameBackground, NULL, &mGameBackgroundRect);
 	SDL_RenderCopy(mRenderer, mGameBoard, NULL, &mGameBoardRect);
-	
+	SDL_RenderCopy(mRenderer, mNextTileBackground, NULL, &mNextTileRect);
+	SDL_RenderCopy(mRenderer, mScoreBackground, NULL, &mScoreRect);
+
+
 	//render game board
 	for (int i = 0; i < mGameBoardMatrix.size(); i++) {
 		if (mGameBoardMatrix[i] != 0) {
@@ -180,6 +193,8 @@ void Game::renderGame() {
 		SDL_Rect rect{ 10, 10, 30, 30 };
 		SDL_RenderCopy(mRenderer, texture, NULL, &rect);
 	}
+
+	RenderText().renderText(mRenderer, mScore, 1520, 820);
 	
 
 	SDL_RenderPresent(mRenderer);

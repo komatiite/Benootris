@@ -25,9 +25,13 @@ private:
 
 	// Graphic variables
 	SDL_Texture* mGameBackground;
+	SDL_Texture* mNextTileBackground;
+	SDL_Texture* mScoreBackground;
 	SDL_Rect mGameBackgroundRect;
 	SDL_Texture* mGameBoard;
 	SDL_Rect mGameBoardRect;
+	SDL_Rect mNextTileRect;
+	SDL_Rect mScoreRect;
 	SDL_Texture* mBlueTile;
 	SDL_Texture* mTealTile;
 	SDL_Texture* mGreenTile;
@@ -44,6 +48,7 @@ private:
 	vector<int> mCompletedLines;
 	LineState mLineState;
 	bool mIsGameActive;
+	Uint32 mScore;
 
 	void renderGame();
 	void destroyResources();

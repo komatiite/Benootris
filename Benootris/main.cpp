@@ -21,7 +21,7 @@ int main(int argc, char* args[]) {
 		return 1;
 	}
 
-	SDL_SetWindowFullscreen(gameWindow, SDL_WINDOW_FULLSCREEN);
+	//SDL_SetWindowFullscreen(gameWindow, SDL_WINDOW_FULLSCREEN);
 
 	Game game(gameWindow, renderer);
 	game.runGame();

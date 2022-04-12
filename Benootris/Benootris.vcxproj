@@ -23,6 +23,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="RenderText.cpp" />
     <ClCompile Include="Update.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -31,6 +32,7 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="LineState.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="RenderText.h" />
     <ClInclude Include="Update.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

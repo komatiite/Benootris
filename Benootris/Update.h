@@ -12,7 +12,8 @@ public:
 		vector<int>& gameBoardMatrix, 
 		vector<int>& completedLines,
 		LineState& lineState,
-		bool& isGameActive);
+		bool& isGameActive,
+		Uint32& score);
 	~Update();
 	void updateGame();
 
@@ -25,6 +26,7 @@ private:
 	LineState& mLineState;
 	Uint32 mLineTicks;
 	bool& mIsGameActive;
+	Uint32& mScore;
 
 	void updateBlockPosition();
 	void updatePlayerMovement();
